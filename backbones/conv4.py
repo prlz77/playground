@@ -15,7 +15,7 @@ class NonLinearity:
 class Conv4(torch.nn.Module):
   def __init__(self, hparams):
     super().__init__()
-    self.layer0 = torch.nn.Conv2d(1, 32, 3, bias=False, padding=1, stride=2) # 28 -> 14
+    self.layer0 = torch.nn.Conv2d(hparams['conv4']['in_ch'], 32, 3, bias=False, padding=1, stride=2) # 28 -> 14
     self.ln0 = torch.nn.GroupNorm(32, 32)
     self.nonlinear0 = NonLinearity.get(hparams)
     self.layer1 = torch.nn.Conv2d(32, 64, 3, stride=2, padding=1, bias=False) # 14->7 
