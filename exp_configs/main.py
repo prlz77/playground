@@ -7,6 +7,9 @@ EXP_GROUPS['mnist_classification'] = {
         "dataset": 'mnist',
         "model": 'classifier',
         "backbone": "conv4",
+        "conv4": {
+            "in_ch": 1,
+        },
         "max_epochs": 50,
         "seed": [1,2,3],
         "head": "linear",

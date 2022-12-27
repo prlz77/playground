@@ -2,15 +2,17 @@ from datasets import get_dataset
 from models import get_model
 import pytorch_lightning as pl
 import argparse
-from haven import haven_wizard as hw
 import exp_configs
 from utils import Bunch
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from pathlib import Path
-import job_configs
 from pytorch_lightning.callbacks import ModelCheckpoint
 import glob
 import datetime
+from utils import load_json
+from hashlib import md5
+import os
+import shutil as sh
 
 def trainval(exp_dict, savedir, args):
     pl.seed_everything(exp_dict['seed'], workers=True)
@@ -71,29 +73,16 @@ if __name__ == "__main__":
         help="Define the base directory where the experiments will be saved.",
     )
     parser.add_argument("-r", "--reset", default=0, type=int, help="Reset or resume the experiment.")
-    parser.add_argument("-j", "--job_scheduler", default=None, help="Choose Job Scheduler.")
     parser.add_argument("--num_workers", type=int, default=1)
-    parser.add_argument("--python_binary", default="python", help="path to your python executable")
 
     args, others = parser.parse_known_args()
 
-    # Choose Job Scheduler
-    job_config = None
-
-    if args.job_scheduler == "toolkit":
-        job_config = job_configs.JOB_CONFIG
-
-    # Run experiments and create results file
-    hw.run_wizard(
-        func=trainval,
-        exp_list=exp_configs.EXP_GROUPS[args.exp_group],
-        savedir_base=args.savedir_base,
-        reset=args.reset,
-        job_config=job_config,
-        results_fname="results_haven.ipynb",
-        python_binary_path=args.python_binary,
-        args=args,
-        use_threads=True
-    )
-
-
+    
+    exp_configs = exp_configs.EXP_GROUPS[args.exp_group]
+    exp_id = md5(str(exp_configs[0]).encode()).hexdigest()
+    exp_path = str(Path(args.savedir_base) / exp_id)
+    if args.reset == 1:
+        sh.rmtree(exp_path, ignore_errors=True)
+    
+    os.makedirs(exp_path, exist_ok=True)
+    trainval(exp_configs[0], savedir=exp_path, args=args)

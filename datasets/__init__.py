@@ -22,7 +22,7 @@ class MNISTDataModule(pl.LightningDataModule):
 
     def setup(self, stage = None):
         # self.mnist_test = MNIST(self.data_dir, train=False)
-        self.mnist_val = MNIST(self.data_dir, train=False, transform=tt.ToTensor())
+        self.mnist_val = MNIST(self.data_dir, train=False, transform=tt.ToTensor(), download=True)
         self.mnist_train = MNIST(self.data_dir, train=True, transform=tt.ToTensor())
         # self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
 
